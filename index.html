@@ -1,56 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="sk">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mafia Game</title>
+<title>Mestečko Jeruzalem</title>
+
 <style>
-body {
-    background: #111;
-    color: white;
-    font-family: Arial;
-    text-align: center;
-    padding: 20px;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
 }
 
-button {
-    padding: 15px;
-    margin: 10px;
-    font-size: 18px;
-    border: none;
-    border-radius: 10px;
+body{
+    background:linear-gradient(135deg,#111,#222,#000);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
 }
 
-.card {
-    background: #222;
-    padding: 20px;
-    margin-top: 20px;
-    border-radius: 15px;
+.container{
+    width:100%;
+    max-width:420px;
+    background:#1d1d1d;
+    border-radius:20px;
+    padding:25px;
+    text-align:center;
+    box-shadow:0 0 25px rgba(255,255,255,.15);
 }
 
-.hidden {
-    display: none;
+h1{
+    margin-bottom:20px;
+}
+
+h2{
+    margin-bottom:15px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    margin:15px 0;
+    text-align:center;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin-top:12px;
+    font-size:18px;
+    border:none;
+    border-radius:12px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    transform:scale(1.03);
+}
+
+.card{
+    margin:20px 0;
+    padding:30px;
+    border-radius:15px;
+    font-size:24px;
+    font-weight:bold;
+    display:none;
+    animation:fade .3s;
+}
+
+.hidden{
+    display:none;
+}
+
+@keyframes fade{
+    from{opacity:0; transform:scale(.8);}
+    to{opacity:1; transform:scale(1);}
 }
 </style>
 </head>
+
 <body>
 
-<h1>Mestečko Jeruzalem</h1>
+<div class="container" id="app">
 
+<!-- SETUP -->
 <div id="setup">
-    <p>Počet hráčov:</p>
-    <input type="number" id="players" value="6" min="5" max="20">
-    <br>
-    <button onclick="startGame()">Rozdeliť roly</button>
+
+<h1>🏛 Mestečko Jeruzalem</h1>
+
+<p>Počet hráčov</p>
+
+<input type="number" id="players" min="5" max="20" value="6">
+
+<button onclick="startGame()">
+🎲 Rozdeliť roly
+</button>
+
 </div>
 
+<!-- GAME -->
 <div id="game" class="hidden">
-    <h2>Hráč <span id="playerNum">1</span></h2>
 
-    <div id="roleCard" class="card hidden"></div>
+<h2>Hráč <span id="playerNum">1</span></h2>
 
-    <button onclick="showRole()">Zobraziť rolu</button>
-    <button onclick="nextPlayer()">Ďalší hráč</button>
+<div id="roleCard" class="card"></div>
+
+<button id="showBtn" onclick="showRole()">
+👁 Zobraziť rolu
+</button>
+
+<button id="hideBtn" class="hidden" onclick="hideRole()">
+🙈 Skryť rolu
+</button>
+
+<button id="nextBtn" class="hidden" onclick="nextPlayer()">
+➡ Ďalší hráč
+</button>
+
+</div>
+
 </div>
 
 <script>
@@ -58,48 +136,146 @@ button {
 let roles = [];
 let current = 0;
 
-function startGame() {
+function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+        let j=Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+}
+
+function startGame(){
+
     let count = parseInt(document.getElementById("players").value);
+
     roles = [];
 
-// Pevné roly
-    roles.push("Evanjelisti (Rozprávač)");
-    roles.push("Ježiš (Lekár) ");
-    roles.push("Apoštoli (Detektív)");
-    roles.push("Židovská rada (Mafian)");
-    roles.push("Judáš (Mafian)");
+    roles.push("📖 Evanjelista (Rozprávač)");
+    roles.push("❤️ Ježiš (Lekár)");
+    roles.push("🔍 Apoštol (Detektív)");
+    roles.push("⚔ Židovská rada (Mafian)");
+    roles.push("🗡 Judáš (Mafian)");
 
-// Zvyšok sú obyčajní ľudia
-    for (let i = roles.length; i < count; i++) {roles.push("Veriaci (obývateľ)");
+    while(roles.length < count){
+        roles.push("🙂 Veriaci");
     }
 
-    // shuffle
-    roles.sort(() => Math.random() - 0.5);
+    shuffle(roles);
 
     current = 0;
 
     document.getElementById("setup").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
 
-    document.getElementById("playerNum").innerText = current + 1;
+    document.getElementById("playerNum").innerText = 1;
+
+    document.getElementById("roleCard").style.display = "none";
 }
 
-function showRole() {
+function showRole(){
+
+    let role = roles[current];
     let card = document.getElementById("roleCard");
-    card.classList.remove("hidden");
-    card.innerText = roles[current];
+
+    card.innerHTML = role;
+
+    if(role.includes("Mafian")){
+        card.style.background = "#8b0000";
+    }else if(role.includes("Lekár")){
+        card.style.background = "#0f766e";
+    }else if(role.includes("Detektív")){
+        card.style.background = "#1d4ed8";
+    }else if(role.includes("Rozprávač")){
+        card.style.background = "#6d28d9";
+    }else{
+        card.style.background = "#166534";
+    }
+
+    card.style.display = "block";
+
+    document.getElementById("showBtn").classList.add("hidden");
+    document.getElementById("hideBtn").classList.remove("hidden");
 }
 
-function nextPlayer() {
+function hideRole(){
+
+    document.getElementById("roleCard").style.display = "none";
+
+    document.getElementById("hideBtn").classList.add("hidden");
+    document.getElementById("nextBtn").classList.remove("hidden");
+}
+
+function nextPlayer(){
+
     current++;
 
-    if (current >= roles.length) {
-        alert("Hra začína!");
-        location.reload();
-    } else {
-        document.getElementById("playerNum").innerText = current + 1;
-        document.getElementById("roleCard").classList.add("hidden");
+    if(current >= roles.length){
+
+        document.getElementById("app").innerHTML = `
+        
+        <h1>🎉 Hra môže začať!</h1>
+
+        <p style="margin:20px 0;">
+        Všetky roly boli rozdané.
+        </p>
+
+        <button onclick="newGame()">
+        🎲 Nová hra
+        </button>
+
+        `;
+
+        return;
     }
+
+    document.getElementById("playerNum").innerText = current + 1;
+
+    document.getElementById("showBtn").classList.remove("hidden");
+    document.getElementById("nextBtn").classList.add("hidden");
+    document.getElementById("roleCard").style.display = "none";
+}
+
+function newGame(){
+
+    roles = [];
+    current = 0;
+
+    document.getElementById("app").innerHTML = `
+    
+    <div id="setup">
+
+        <h1>🏛 Mestečko Jeruzalem</h1>
+
+        <p>Počet hráčov</p>
+
+        <input type="number" id="players" min="5" max="20" value="6">
+
+        <button onclick="startGame()">
+        🎲 Rozdeliť roly
+        </button>
+
+    </div>
+
+    <div id="game" class="hidden">
+
+        <h2>Hráč <span id="playerNum">1</span></h2>
+
+        <div id="roleCard" class="card"></div>
+
+        <button id="showBtn" onclick="showRole()">
+        👁 Zobraziť rolu
+        </button>
+
+        <button id="hideBtn" class="hidden" onclick="hideRole()">
+        🙈 Skryť rolu
+        </button>
+
+        <button id="nextBtn" class="hidden" onclick="nextPlayer()">
+        ➡ Ďalší hráč
+        </button>
+
+    </div>
+
+    `;
 }
 
 </script>
