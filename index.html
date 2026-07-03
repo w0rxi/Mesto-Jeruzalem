@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mafia Game</title>
+<style>
+body {
+    background: #111;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+    padding: 20px;
+}
+
+button {
+    padding: 15px;
+    margin: 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+}
+
+.card {
+    background: #222;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 15px;
+}
+
+.hidden {
+    display: none;
+}
+</style>
+</head>
+<body>
+
+<h1>Mestečko Jeruzalem</h1>
+
+<div id="setup">
+    <p>Počet hráčov:</p>
+    <input type="number" id="players" value="6" min="5" max="20">
+    <br>
+    <button onclick="startGame()">Rozdeliť roly</button>
+</div>
+
+<div id="game" class="hidden">
+    <h2>Hráč <span id="playerNum">1</span></h2>
+
+    <div id="roleCard" class="card hidden"></div>
+
+    <button onclick="showRole()">Zobraziť rolu</button>
+    <button onclick="nextPlayer()">Ďalší hráč</button>
+</div>
+
+<script>
+
+let roles = [];
+let current = 0;
+
+function startGame() {
+    let count = parseInt(document.getElementById("players").value);
+    roles = [];
+
+// Pevné roly
+    roles.push("Evanjelisti (Rozpráavč)");
+    roles.push("Ježiš (Lekár) ");
+    roles.push("Apoštoli (Detektív)");
+    roles.push("Židovská rada (Mafian)");
+    roles.push("Judáš (Mafian)");
+
+// Zvyšok sú obyčajní ľudia
+    for (let i = roles.length; i < count; i++) {roles.push("Veriaci (obývateľ)");
+    }
+
+    // shuffle
+    roles.sort(() => Math.random() - 0.5);
+
+    current = 0;
+
+    document.getElementById("setup").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+
+    document.getElementById("playerNum").innerText = current + 1;
+}
+
+function showRole() {
+    let card = document.getElementById("roleCard");
+    card.classList.remove("hidden");
+    card.innerText = roles[current];
+}
+
+function nextPlayer() {
+    current++;
+
+    if (current >= roles.length) {
+        alert("Hra začína!");
+        location.reload();
+    } else {
+        document.getElementById("playerNum").innerText = current + 1;
+        document.getElementById("roleCard").classList.add("hidden");
+    }
+}
+
+</script>
+
+</body>
+</html>
